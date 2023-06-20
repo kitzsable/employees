@@ -1,6 +1,10 @@
 package handler
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/gin-gonic/gin"
+)
 
 // Возможные ошибки при обработке запросов.
 var (
@@ -39,4 +43,32 @@ func NewHandler(
 		DepartmentHandler: departmentHandler,
 		EmployeeHandler:   employeeHandler,
 	}
+}
+
+func (handler *Handler) ConfigureRouter() *gin.Engine {
+	router := gin.New()
+
+	auth := router.Group("/auth")
+	{
+		auth.POST("/signUp", handler.AuthHandler.SignUp)
+		auth.POST("/signIn", handler.AuthHandler.SignIn)
+	}
+
+	api := router.Group("/api", handler.AuthMiddleware.Autorize)
+	{
+		api.POST("/employee", handler.EmployeeHandler.CreateEmployee)
+		api.POST("/setDepartment", handler.EmployeeHandler.SetEmployeeDepartment)
+		api.GET("/employee/:id", handler.EmployeeHandler.GetEmployee)
+		api.GET("/employees", handler.EmployeeHandler.GetAllEmployees)
+		api.PUT("/employee/:id", handler.EmployeeHandler.UpdateEmployee)
+		api.DELETE("/employee/:id", handler.EmployeeHandler.DeleteEmployee)
+
+		api.POST("/department", handler.DepartmentHandler.CreateDepartment)
+		api.GET("/department/:id", handler.DepartmentHandler.GetDepartment)
+		api.GET("/departments", handler.DepartmentHandler.GetAllDepartments)
+		api.PUT("/department/:id", handler.DepartmentHandler.UpdateDepartment)
+		api.DELETE("/department/:id", handler.DepartmentHandler.DeleteDepartment)
+	}
+
+	return router
 }

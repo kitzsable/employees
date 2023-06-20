@@ -4,7 +4,6 @@ import (
 	"employees/internal/domain"
 	"employees/internal/repository"
 	"employees/internal/transport"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,7 +12,7 @@ import (
 
 // Обработчик ошибок.
 func HandleError(context *gin.Context, message string, err error) {
-	logrus.Error(fmt.Sprintf("%s: %s", message, err.Error()))
+	logrus.Errorf("%s: %s", message, err.Error())
 	switch err {
 	case domain.ErrAccessTokenIncorrect, domain.ErrSignInDataIncorrect:
 		context.AbortWithStatusJSON(http.StatusUnauthorized, transport.ErrorResponse{Message: message})

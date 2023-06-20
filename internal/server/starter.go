@@ -1,34 +1,51 @@
 package server
 
 import (
+	"context"
 	"database/sql"
 	"employees/internal/domain"
 	"employees/internal/handler"
 	"employees/internal/repository"
-	"fmt"
-	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/sirupsen/logrus"
 )
 
 // Запуск сервера с конфигурацией.
-func Start(config *Config) error {
-	logrus.Info(fmt.Sprintf("Server starting with %+v", config))
-
+func Start(config *Config) {
 	database, err := repository.NewPostgresDB(config.DBConfig)
 	if err != nil {
 		logrus.Fatalf("error creating database: %s", err.Error())
 	}
-	defer database.Close()
 
 	handler, err := createHandler(database)
 	if err != nil {
 		logrus.Fatalf("error creating handler: %s", err.Error())
 	}
 
-	server := newServer(handler)
-	return http.ListenAndServe(config.BindAddress, server)
+	router := handler.ConfigureRouter()
+
+	server := newServer(config.BindAddress, router)
+	go server.ListenAndServe()
+
+	logrus.Info("server started")
+
+	quitChannel := make(chan os.Signal, 1)
+	signal.Notify(quitChannel, syscall.SIGTERM, syscall.SIGINT)
+	<-quitChannel
+
+	logrus.Print("server is shutting down")
+
+	if err := server.Shutdown(context.Background()); err != nil {
+		logrus.Errorf("error shutting down server: %s", err.Error())
+	}
+
+	if err := database.Close(); err != nil {
+		logrus.Errorf("error closing database connection: %s", err.Error())
+	}
 }
 
 func createHandler(database *sql.DB) (handler.Handler, error) {
