@@ -3,6 +3,7 @@ package handler
 import (
 	"employees/internal/domain"
 	"employees/internal/models"
+	"employees/internal/transport"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +21,16 @@ func NewAuthHandler(authService domain.AuthService) AuthHandler {
 	}
 }
 
-// Регистрация пользователя.
+// @Summary Регистрация.
+// @Tags auth
+// @Description Регистрация пользователя в системе.
+// @ID signUp
+// @Accept  json
+// @Produce  json
+// @Param input body models.User true "Данные нового пользователя."
+// @Success 200 {object} transport.EntityCreatingResponse
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /auth/signUp [post]
 func (handler AuthHandler) SignUp(context *gin.Context) {
 	errorMessage := "failed to sign up user"
 
@@ -37,10 +47,19 @@ func (handler AuthHandler) SignUp(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, map[string]interface{}{"id": id})
+	context.JSON(http.StatusOK, transport.EntityCreatingResponse{Id: id})
 }
 
-// Аутентификация пользователя (получение токена).
+// @Summary Аутентификация.
+// @Tags auth
+// @Description Аутентификация пользователя (получение токена).
+// @ID signIn
+// @Accept json
+// @Produce json
+// @Param input body models.User true "Данные пользователя."
+// @Success 200 {object} transport.SignInResponse
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /auth/signIn [post]
 func (handler AuthHandler) SignIn(context *gin.Context) {
 	errorMessage := "failed to sign in user"
 
@@ -57,5 +76,5 @@ func (handler AuthHandler) SignIn(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, map[string]interface{}{"token": signingToken})
+	context.JSON(http.StatusOK, transport.SignInResponse{Token: signingToken})
 }

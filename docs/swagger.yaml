@@ -1,0 +1,549 @@
+basePath: /
+definitions:
+  models.Department:
+    properties:
+      id:
+        description: Идентификатор отдела.
+        type: integer
+      name:
+        description: Наименование отдела.
+        type: string
+    type: object
+  models.Employee:
+    properties:
+      age:
+        description: Возраст сотрудника.
+        type: integer
+      department:
+        allOf:
+        - $ref: '#/definitions/models.Department'
+        description: Отдел, в котором работает сотрудник.
+      id:
+        description: Идентификатор сотрудника.
+        type: integer
+      name:
+        description: Имя сотрудника.
+        type: string
+      salary:
+        description: Зарплата сотрудника.
+        type: integer
+      sex:
+        description: Пол сотрудника.
+        type: string
+    type: object
+  models.User:
+    properties:
+      password:
+        description: Пароль пользователя.
+        type: string
+      username:
+        description: Имя поьзователя.
+        type: string
+    type: object
+  transport.EntityCreatingResponse:
+    properties:
+      id:
+        description: Идентификатор сущности.
+        type: integer
+    type: object
+  transport.ErrorResponse:
+    properties:
+      message:
+        description: Сообщение с информацией об ошибке.
+        type: string
+    type: object
+  transport.MessageResponse:
+    properties:
+      message:
+        description: Сообщение.
+        type: string
+    type: object
+  transport.SetDepartmentQuery:
+    properties:
+      departmentId:
+        description: Идентификатор отдела.
+        type: integer
+      employeeId:
+        description: Идентификатор пользователя.
+        type: integer
+    type: object
+  transport.SignInResponse:
+    properties:
+      token:
+        description: Токен авторизации.
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API Server for Employee App
+  title: The Employee App
+  version: "1.0"
+paths:
+  /api/department/createDepartment:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового отдела.
+      operationId: createDepartment
+      parameters:
+      - description: Данные нового отдела.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Department'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.EntityCreatingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Создание нового отдела.
+      tags:
+      - department
+  /api/department/deleteDepartment/{id}:
+    delete:
+      description: Удаление отдела.
+      operationId: deleteDepartment
+      parameters:
+      - description: Идентификатор отдела.
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Сообщение об успешном удалении.
+          schema:
+            $ref: '#/definitions/transport.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Удаление отдела.
+      tags:
+      - department
+  /api/department/getAllDepartments:
+    get:
+      description: Получение списка всех отделов.
+      operationId: getAllDepartments
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Department'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Получение списка всех отделов.
+      tags:
+      - department
+  /api/department/getDepartment/{id}:
+    get:
+      description: Получение информации об отделе.
+      operationId: getDepartment
+      parameters:
+      - description: Идентификатор отдела.
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Department'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Получение отдела.
+      tags:
+      - department
+  /api/department/updateDepartment/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Обновление данных отдела.
+      operationId: updateDepartment
+      parameters:
+      - description: Идентификатор отдела.
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новые данные отдела.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Department'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сообщение об успешном обновлении.
+          schema:
+            $ref: '#/definitions/transport.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Обновление данных отдела.
+      tags:
+      - department
+  /api/employee/createEmployee:
+    post:
+      consumes:
+      - application/json
+      description: Создание нового сотрудника.
+      operationId: createEmployee
+      parameters:
+      - description: Данные нового сотрудника.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employee'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.EntityCreatingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Создание нового сотрудника.
+      tags:
+      - employee
+  /api/employee/deleteEmployee/{id}:
+    delete:
+      description: Удаление сотрудника.
+      operationId: deleteEmployee
+      parameters:
+      - description: Идентификатор сотрудника.
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Сообщение об успешном удалении.
+          schema:
+            $ref: '#/definitions/transport.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Удаление сотрудника.
+      tags:
+      - employee
+  /api/employee/getAllEmployees:
+    get:
+      description: Получение списка всех сотрудников.
+      operationId: getAllEmployees
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Employee'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Получение списка всех сотрудников.
+      tags:
+      - employee
+  /api/employee/getEmployee/{id}:
+    get:
+      description: Получение данных сотрудника.
+      operationId: getEmployee
+      parameters:
+      - description: Идентификатор сотрудника.
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Employee'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Получение данных сотрудника.
+      tags:
+      - employee
+  /api/employee/setDepartment:
+    put:
+      consumes:
+      - application/json
+      description: Установка отдела для сотрудника.
+      operationId: setDepartment
+      parameters:
+      - description: Данные установки отдела пользователю.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/transport.SetDepartmentQuery'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сообщение об успешной установке.
+          schema:
+            $ref: '#/definitions/transport.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Установка отдела для сотрудника.
+      tags:
+      - employee
+  /api/employee/updateEmployee/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Обновление данных сотрудника.
+      operationId: updateEmployee
+      parameters:
+      - description: Идентификатор сотрудника.
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новые данные сотрудника.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.Employee'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Сообщение об успешном обновлении.
+          schema:
+            $ref: '#/definitions/transport.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      security:
+      - AuthorizationKey: []
+      summary: Обновление данных сотрудника.
+      tags:
+      - employee
+  /auth/signIn:
+    post:
+      consumes:
+      - application/json
+      description: Аутентификация пользователя (получение токена).
+      operationId: signIn
+      parameters:
+      - description: Данные пользователя.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.SignInResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      summary: Аутентификация.
+      tags:
+      - auth
+  /auth/signUp:
+    post:
+      consumes:
+      - application/json
+      description: Регистрация пользователя в системе.
+      operationId: signUp
+      parameters:
+      - description: Данные нового пользователя.
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/transport.EntityCreatingResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/transport.ErrorResponse'
+      summary: Регистрация.
+      tags:
+      - auth
+securityDefinitions:
+  AuthorizationKey:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

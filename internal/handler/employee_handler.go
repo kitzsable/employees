@@ -22,7 +22,17 @@ func NewEmployeeHandler(employeeRepository domain.EmployeeRepository) EmployeeHa
 	}
 }
 
-// Создание нового сотрудника.
+// @Summary Создание нового сотрудника.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Создание нового сотрудника.
+// @ID createEmployee
+// @Accept json
+// @Produce json
+// @Param input body models.Employee true "Данные нового сотрудника."
+// @Success 200 {object} transport.EntityCreatingResponse
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/createEmployee [post]
 func (handler EmployeeHandler) CreateEmployee(context *gin.Context) {
 	errorMessage := "failed to create employee"
 
@@ -39,10 +49,19 @@ func (handler EmployeeHandler) CreateEmployee(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, map[string]interface{}{"id": id})
+	context.JSON(http.StatusOK, transport.EntityCreatingResponse{Id: id})
 }
 
-// Получение данных сотрудника.
+// @Summary Получение данных сотрудника.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Получение данных сотрудника.
+// @ID getEmployee
+// @Produce json
+// @Param id path integer true "Идентификатор сотрудника."
+// @Success 200 {object} models.Employee
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/getEmployee/{id} [get]
 func (handler EmployeeHandler) GetEmployee(context *gin.Context) {
 	errorMessage := "failed to get employee"
 
@@ -61,7 +80,17 @@ func (handler EmployeeHandler) GetEmployee(context *gin.Context) {
 	context.JSON(http.StatusOK, employee)
 }
 
-// Установка отдела для сотрудника.
+// @Summary Установка отдела для сотрудника.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Установка отдела для сотрудника.
+// @ID setDepartment
+// @Accept json
+// @Produce json
+// @Param input body transport.SetDepartmentQuery true "Данные установки отдела пользователю."
+// @Success 200 {object} transport.MessageResponse "Сообщение об успешной установке."
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/setDepartment [put]
 func (handler EmployeeHandler) SetEmployeeDepartment(context *gin.Context) {
 	errorMessage := "failed to set department"
 
@@ -78,10 +107,18 @@ func (handler EmployeeHandler) SetEmployeeDepartment(context *gin.Context) {
 		return
 	}
 
-	context.String(http.StatusOK, "department set")
+	context.JSON(http.StatusOK, transport.MessageResponse{Message: "department set"})
 }
 
-// Получение списка всех сотрудников.
+// @Summary Получение списка всех сотрудников.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Получение списка всех сотрудников.
+// @ID getAllEmployees
+// @Produce json
+// @Success 200 {object} []models.Employee
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/getAllEmployees [get]
 func (handler EmployeeHandler) GetAllEmployees(context *gin.Context) {
 	errorMessage := "failed to get all employees"
 
@@ -94,7 +131,18 @@ func (handler EmployeeHandler) GetAllEmployees(context *gin.Context) {
 	context.JSON(http.StatusOK, employees)
 }
 
-// Обновление данных сотрудника.
+// @Summary Обновление данных сотрудника.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Обновление данных сотрудника.
+// @ID updateEmployee
+// @Accept json
+// @Produce json
+// @Param id path integer true "Идентификатор сотрудника."
+// @Param input body models.Employee true "Новые данные сотрудника."
+// @Success 200 {object} transport.MessageResponse "Сообщение об успешном обновлении."
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/updateEmployee/{id} [put]
 func (handler EmployeeHandler) UpdateEmployee(context *gin.Context) {
 	errorMessage := "failed to update employee"
 
@@ -117,12 +165,21 @@ func (handler EmployeeHandler) UpdateEmployee(context *gin.Context) {
 		return
 	}
 
-	context.String(http.StatusOK, "employee updated")
+	context.JSON(http.StatusOK, transport.MessageResponse{Message: "employee updated"})
 }
 
-// Удаление сотрудника.
+// @Summary Удаление сотрудника.
+// @Security AuthorizationKey
+// @Tags employee
+// @Description Удаление сотрудника.
+// @ID deleteEmployee
+// @Produce plain
+// @Param id path integer true "Идентификатор сотрудника."
+// @Success 200 {object} transport.MessageResponse "Сообщение об успешном удалении."
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/employee/deleteEmployee/{id} [delete]
 func (handler EmployeeHandler) DeleteEmployee(context *gin.Context) {
-	errorMessage := "failed to delete department"
+	errorMessage := "failed to delete employee"
 
 	id, err := strconv.Atoi(context.Param("id"))
 	if err != nil {
@@ -136,5 +193,5 @@ func (handler EmployeeHandler) DeleteEmployee(context *gin.Context) {
 		return
 	}
 
-	context.String(http.StatusOK, "employee deleted")
+	context.JSON(http.StatusOK, transport.MessageResponse{Message: "employee deleted"})
 }

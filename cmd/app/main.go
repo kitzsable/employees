@@ -22,6 +22,14 @@ func init() {
 	}
 }
 
+// @title The Employee App
+// @version 1.0
+// @description API Server for Employee App
+// @host localhost:8000
+// @BasePath /
+// @securityDefinitions.apikey AuthorizationKey
+// @in header
+// @name Authorization
 func main() {
 	dbConfig := repository.DBConfig{
 		Host:     viper.GetString("database.host"),

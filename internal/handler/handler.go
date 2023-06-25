@@ -4,6 +4,10 @@ import (
 	"errors"
 
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+
+	_ "employees/docs"
 )
 
 // Возможные ошибки при обработке запросов.
@@ -48,6 +52,8 @@ func NewHandler(
 func (handler *Handler) ConfigureRouter() *gin.Engine {
 	router := gin.New()
 
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	auth := router.Group("/auth")
 	{
 		auth.POST("/signUp", handler.AuthHandler.SignUp)
@@ -56,18 +62,24 @@ func (handler *Handler) ConfigureRouter() *gin.Engine {
 
 	api := router.Group("/api", handler.AuthMiddleware.Autorize)
 	{
-		api.POST("/employee", handler.EmployeeHandler.CreateEmployee)
-		api.POST("/setDepartment", handler.EmployeeHandler.SetEmployeeDepartment)
-		api.GET("/employee/:id", handler.EmployeeHandler.GetEmployee)
-		api.GET("/employees", handler.EmployeeHandler.GetAllEmployees)
-		api.PUT("/employee/:id", handler.EmployeeHandler.UpdateEmployee)
-		api.DELETE("/employee/:id", handler.EmployeeHandler.DeleteEmployee)
+		employee := api.Group("/employee")
+		{
+			employee.POST("/createEmployee", handler.EmployeeHandler.CreateEmployee)
+			employee.PUT("/setDepartment", handler.EmployeeHandler.SetEmployeeDepartment)
+			employee.GET("/getEmployee/:id", handler.EmployeeHandler.GetEmployee)
+			employee.GET("/getAllEmployees", handler.EmployeeHandler.GetAllEmployees)
+			employee.PUT("/updateEmployee/:id", handler.EmployeeHandler.UpdateEmployee)
+			employee.DELETE("/deleteEmployee/:id", handler.EmployeeHandler.DeleteEmployee)
+		}
 
-		api.POST("/department", handler.DepartmentHandler.CreateDepartment)
-		api.GET("/department/:id", handler.DepartmentHandler.GetDepartment)
-		api.GET("/departments", handler.DepartmentHandler.GetAllDepartments)
-		api.PUT("/department/:id", handler.DepartmentHandler.UpdateDepartment)
-		api.DELETE("/department/:id", handler.DepartmentHandler.DeleteDepartment)
+		department := api.Group("/department")
+		{
+			department.POST("/createDepartment", handler.DepartmentHandler.CreateDepartment)
+			department.GET("/getDepartment/:id", handler.DepartmentHandler.GetDepartment)
+			department.GET("/getAllDepartments", handler.DepartmentHandler.GetAllDepartments)
+			department.PUT("/updateDepartment/:id", handler.DepartmentHandler.UpdateDepartment)
+			department.DELETE("/deleteDepartment/:id", handler.DepartmentHandler.DeleteDepartment)
+		}
 	}
 
 	return router

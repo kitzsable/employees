@@ -3,6 +3,7 @@ package handler
 import (
 	"employees/internal/domain"
 	"employees/internal/models"
+	"employees/internal/transport"
 	"net/http"
 	"strconv"
 
@@ -21,7 +22,17 @@ func NewDepartmentHandler(departmentRepository domain.DepartmentRepository) Depa
 	}
 }
 
-// Создание нового отдела.
+// @Summary Создание нового отдела.
+// @Security AuthorizationKey
+// @Tags department
+// @Description Создание нового отдела.
+// @ID createDepartment
+// @Accept json
+// @Produce json
+// @Param input body models.Department true "Данные нового отдела."
+// @Success 200 {object} transport.EntityCreatingResponse
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/department/createDepartment [post]
 func (handler DepartmentHandler) CreateDepartment(context *gin.Context) {
 	errorMessage := "failed to create department"
 
@@ -38,10 +49,19 @@ func (handler DepartmentHandler) CreateDepartment(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, map[string]interface{}{"id": id})
+	context.JSON(http.StatusOK, transport.EntityCreatingResponse{Id: id})
 }
 
-// Получение отдела.
+// @Summary Получение отдела.
+// @Security AuthorizationKey
+// @Tags department
+// @Description Получение информации об отделе.
+// @ID getDepartment
+// @Produce json
+// @Param id path integer true "Идентификатор отдела."
+// @Success 200 {object} models.Department
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/department/getDepartment/{id} [get]
 func (handler DepartmentHandler) GetDepartment(context *gin.Context) {
 	errorMessage := "failed to get department"
 
@@ -60,7 +80,15 @@ func (handler DepartmentHandler) GetDepartment(context *gin.Context) {
 	context.JSON(http.StatusOK, department)
 }
 
-// Получение списка всех отделов.
+// @Summary Получение списка всех отделов.
+// @Security AuthorizationKey
+// @Tags department
+// @Description Получение списка всех отделов.
+// @ID getAllDepartments
+// @Produce  json
+// @Success 200 {object} []models.Department
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/department/getAllDepartments [get]
 func (handler DepartmentHandler) GetAllDepartments(context *gin.Context) {
 	errorMessage := "failed to get departments"
 
@@ -73,7 +101,18 @@ func (handler DepartmentHandler) GetAllDepartments(context *gin.Context) {
 	context.JSON(http.StatusOK, departments)
 }
 
-// Обновление данных отдела.
+// @Summary Обновление данных отдела.
+// @Security AuthorizationKey
+// @Tags department
+// @Description Обновление данных отдела.
+// @ID updateDepartment
+// @Accept json
+// @Produce json
+// @Param id path integer true "Идентификатор отдела."
+// @Param input body models.Department true "Новые данные отдела."
+// @Success 200 {object} transport.MessageResponse "Сообщение об успешном обновлении."
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/department/updateDepartment/{id} [put]
 func (handler DepartmentHandler) UpdateDepartment(context *gin.Context) {
 	errorMessage := "failed to update department"
 
@@ -96,10 +135,19 @@ func (handler DepartmentHandler) UpdateDepartment(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, map[string]interface{}{"id": id})
+	context.JSON(http.StatusOK, transport.MessageResponse{Message: "department updated"})
 }
 
-// Удаление отдела.
+// @Summary Удаление отдела.
+// @Security AuthorizationKey
+// @Tags department
+// @Description Удаление отдела.
+// @ID deleteDepartment
+// @Produce  plain
+// @Param id path integer true "Идентификатор отдела."
+// @Success 200 {object} transport.MessageResponse "Сообщение об успешном удалении."
+// @Failure 400,401,500 {object} transport.ErrorResponse
+// @Router /api/department/deleteDepartment/{id} [delete]
 func (handler DepartmentHandler) DeleteDepartment(context *gin.Context) {
 	errorMessage := "failed to delete department"
 
@@ -114,5 +162,6 @@ func (handler DepartmentHandler) DeleteDepartment(context *gin.Context) {
 		HandleError(context, errorMessage, err)
 		return
 	}
-	context.String(http.StatusOK, "department deleted")
+
+	context.JSON(http.StatusOK, transport.MessageResponse{Message: "department deleted"})
 }
