@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"time"
 )
 
 // Названия таблиц базы данных.
@@ -47,16 +48,24 @@ type DBConfig struct {
 
 // Функция создания нового экземпляра базы данных по её конфигурации.
 func NewPostgresDB(dbConfig DBConfig) (*sql.DB, error) {
-	databaseURL := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s",
-		dbConfig.Host, dbConfig.Port, dbConfig.Username, dbConfig.DBName, dbConfig.Password, dbConfig.SSLMode)
+	databaseURL := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=%v",
+		dbConfig.Username,
+		dbConfig.Password,
+		dbConfig.Host,
+		dbConfig.Port,
+		dbConfig.DBName,
+		dbConfig.SSLMode)
 	db, err := sql.Open("pgx", databaseURL)
 	if err != nil {
 		return db, fmt.Errorf("cannot open database: %v", err)
 	}
 
-	if err := db.Ping(); err != nil {
-		return db, fmt.Errorf("cannot connect to database: %v", err)
+	for i := 0; i < 10; i++ {
+		if err = db.Ping(); err == nil {
+			return db, nil
+		}
+		time.Sleep(1 * time.Second)
 	}
 
-	return db, nil
+	return db, fmt.Errorf("cannot connect to database: %v", err)
 }
